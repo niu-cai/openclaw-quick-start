@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 0 * * 0'  # 每周日运行一次
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: |
+        npm install -g openclaw-cn
+        echo "OpenClaw installed"
+    
+    - name: Validate configuration files
+      run: |
+        echo "Validating configuration files..."
+        if [ -f "configs/openclaw.json" ]; then
+          echo "✅ openclaw.json exists"
+          # 简单的JSON验证
+          python3 -c "import json; json.load(open('configs/openclaw.json')); print('✅ openclaw.json is valid JSON')"
+        fi
+        
+        if [ -f "scripts/install-openclaw.sh" ]; then
+          echo "✅ install-openclaw.sh exists"
+          # 检查脚本语法
+          bash -n scripts/install-openclaw.sh && echo "✅ install-openclaw.sh has valid syntax"
+        fi
+    
+    - name: Run shellcheck on scripts
+      uses: azohra/shellcheck@latest
+      with:
+        path: "scripts/"
+    
+    - name: Check markdown files
+      uses: gaurav-nelson/github-action-markdown-link-check@v1
+      with:
+        use-quiet-mode: 'yes'
+        use-verbose-mode: 'yes'
+        config-file: '.github/markdown-link-check.json'
+    
+    - name: Create test report
+      run: |
+        echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "✅ All configuration files validated" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Shell scripts checked" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Markdown links verified" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Build successful!**" >> $GITHUB_STEP_SUMMARY
+
+  deploy-docs:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs
+        publish_branch: gh-pages
+        keep_files: true
