@@ -1,0 +1,49 @@
+{
+  "gateway": {
+    "host": "localhost",
+    "port": 8123,
+    "logLevel": "info",
+    "autoStart": true
+  },
+  "memory": {
+    "enabled": true,
+    "storagePath": "~/.openclaw/workspace/memory",
+    "dailyNotes": true,
+    "autoBackup": true,
+    "backupInterval": 86400000
+  },
+  "skills": {
+    "autoLoad": true,
+    "defaultSkills": [
+      "memory-system",
+      "file-manager",
+      "automation-tools"
+    ],
+    "skillPaths": [
+      "~/.openclaw/skills",
+      "./skills"
+    ]
+  },
+  "security": {
+    "allowedCommands": [
+      "openclaw gateway status",
+      "openclaw gateway start",
+      "openclaw gateway stop",
+      "openclaw gateway restart",
+      "openclaw status"
+    ],
+    "requireConfirmation": true,
+    "logAllOperations": true
+  },
+  "heartbeat": {
+    "enabled": true,
+    "interval": 1800000,
+    "checkSystemHealth": true,
+    "checkNotifications": true
+  },
+  "ui": {
+    "theme": "dark",
+    "compactMode": false,
+    "showToolCalls": false
+  }
+}
