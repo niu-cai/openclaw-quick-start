@@ -42,7 +42,7 @@ jobs:
         fi
     
     - name: Run shellcheck on scripts
-      uses: azohra/shellcheck@latest
+      uses: ludeeus/action-shellcheck@master
       with:
         path: "scripts/"
     
